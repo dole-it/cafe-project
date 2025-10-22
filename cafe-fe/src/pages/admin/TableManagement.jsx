@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Plus, Users, Coffee, Clock } from 'lucide-react';
 import { Button } from '../../components/ui/button';
+import { getAllTables, createTable, updateTable } from '../../api/table.api';
+import { toast } from 'sonner';
 
 export default function TableManagement() {
   const [tables, setTables] = useState([]);
@@ -13,17 +15,11 @@ export default function TableManagement() {
 
   const fetchTables = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/tables', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setTables(data);
-      }
+      const data = await getAllTables();
+      setTables(data);
     } catch (error) {
       console.error('Error fetching tables:', error);
+      toast.error('Lỗi tải danh sách bàn');
     }
   };
 
@@ -34,40 +30,24 @@ export default function TableManagement() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:8080/api/tables', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(formData)
-      });
-
-      if (response.ok) {
-        setIsAddModalOpen(false);
-        fetchTables();
-      }
+      await createTable(formData);
+      toast.success('Thêm bàn thành công');
+      setIsAddModalOpen(false);
+      fetchTables();
     } catch (error) {
       console.error('Error adding table:', error);
+      toast.error('Lỗi thêm bàn: ' + (error.response?.data || 'Đã có lỗi xảy ra'));
     }
   };
 
   const handleStatusChange = async (tableId, newStatus) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/tables/${tableId}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ status: newStatus })
-      });
-
-      if (response.ok) {
-        fetchTables();
-      }
+      await updateTable(tableId, { status: newStatus });
+      toast.success('Cập nhật trạng thái bàn thành công');
+      fetchTables();
     } catch (error) {
       console.error('Error updating table status:', error);
+      toast.error('Lỗi cập nhật trạng thái bàn');
     }
   };
 

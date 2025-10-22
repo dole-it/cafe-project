@@ -18,5 +18,14 @@ public class Product {
 
     private String description;
 
+    @Column(nullable = true)
     private Double price;
+
+    @Column(nullable = false)
+    private String category;
+
+    private String image;
+
+    @Column(nullable = false)
+    private Boolean available = true;
 }

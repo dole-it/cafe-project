@@ -36,14 +36,14 @@ public class TokenService {
     public String createToken(com.cafe_be.model.User user) {
         Date now = new Date();
         Date exp = new Date(now.getTime() + expirationMs);
-        com.auth0.jwt.interfaces.Claim[] dummy = new com.auth0.jwt.interfaces.Claim[0];
-        return JWT.create()
-                .withSubject(user.getUsername())
-                .withClaim("email", user.getEmail())
-                .withClaim("roles", user.getRoles() == null ? java.util.List.of() : user.getRoles().stream().map(Enum::name).toList())
-                .withIssuedAt(now)
-                .withExpiresAt(exp)
-                .sign(algorithm);
+    return JWT.create()
+        .withSubject(user.getUsername())
+        .withClaim("email", user.getEmail())
+        // user.getRole() is a single enum now; create a list with the name if present
+        .withClaim("roles", user.getRole() == null ? java.util.List.of() : java.util.List.of(user.getRole().name()))
+        .withIssuedAt(now)
+        .withExpiresAt(exp)
+        .sign(algorithm);
     }
 
     public DecodedJWT verify(String token) {

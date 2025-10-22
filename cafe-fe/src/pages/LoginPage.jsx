@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Button } from '../components/ui/button';
 import { UserCircle2, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { login } from '../api/auth.api';
+import { toast } from 'sonner';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -16,32 +18,23 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:8080/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        // Store the token
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        
-        // Redirect based on role
-        if (data.user.role === 'ADMIN') {
-          navigate('/admin');
-        } else {
-          navigate('/user');
-        }
+      const data = await login(formData);
+      // Store the token and user info
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      
+      toast.success('Đăng nhập thành công');
+      
+      // Redirect based on role
+      if (data.user.role === 'ADMIN') {
+        navigate('/admin');
       } else {
-        const data = await response.json();
-        setError(data.message || 'Đăng nhập thất bại');
+        navigate('/user');
       }
     } catch (err) {
-      setError('Có lỗi xảy ra, vui lòng thử lại');
+      console.error('Login error:', err);
+      setError(err.response?.data?.message || 'Có lỗi xảy ra, vui lòng thử lại');
+      toast.error('Đăng nhập thất bại');
     }
   };
 

@@ -4,8 +4,6 @@ import com.cafe_be.model.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Set;
-
 @Entity
 @Table(name = "users")
 @Data
@@ -25,9 +23,9 @@ public class User {
     @Column(unique = true)
     private String email;
 
-    @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
-    private Set<Role> roles;
+    @Column(nullable = false)
+    private Role role;
 
     private String fullName;
     private String phone;

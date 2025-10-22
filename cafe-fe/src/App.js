@@ -10,6 +10,7 @@ import UserManagement from './pages/admin/UserManagement';
 import OrderManagement from './pages/admin/OrderManagement';
 import Dashboard from './pages/admin/Dashboard';
 import MenuPage from './pages/user/MenuPage';
+import BookingPage from './pages/user/BookingPage';
 
 function App() {
   // Check if user is authenticated
@@ -102,6 +103,11 @@ function App() {
         <Route path="/menu" element={
           <UserLayout>
             <MenuPage />
+          </UserLayout>
+        } />
+        <Route path="/book" element={
+          <UserLayout>
+            <BookingPage />
           </UserLayout>
         } />
       </Routes>
