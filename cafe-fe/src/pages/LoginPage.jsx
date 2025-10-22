@@ -29,7 +29,7 @@ export default function LoginPage() {
       if (data.user.role === 'ADMIN') {
         navigate('/admin');
       } else {
-        navigate('/user');
+        navigate('/');
       }
     } catch (err) {
       console.error('Login error:', err);

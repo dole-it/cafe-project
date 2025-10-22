@@ -11,6 +11,7 @@ const MenuPage = () => {
     const [selectedCategory, setSelectedCategory] = useState('ALL');
     const [cart, setCart] = useState([]);
     const [deliveryTime, setDeliveryTime] = useState('ASAP');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const categories = [
         { id: 'COFFEE', name: 'CÀ PHÊ', icon: Coffee },
@@ -228,30 +229,43 @@ const MenuPage = () => {
                                     </select>
                                 </div>
 
-                                <Button className="w-full bg-red-600 hover:bg-red-700 text-white py-3 text-lg font-bold tracking-wide" onClick={async () => {
-                                    if (cart.length === 0) {
-                                        toast('Giỏ hàng trống');
-                                        return;
-                                    }
-                                    const payload = {
-                                        tableId: null,
-                                        deliveryTime,
-                                        items: cart.map(i => ({
-                                            productId: i.id,
-                                            quantity: i.quantity,
-                                            price: i.price,
-                                            notes: i.notes
-                                        }))
-                                    };
-                                    try {
-                                        await createOrder(payload);
-                                        toast.success('Đặt hàng thành công');
-                                        setCart([]);
-                                    } catch (e) {
-                                        console.error(e);
-                                        toast.error('Lỗi đặt hàng: ' + (e.response?.data || 'Lỗi kết nối tới server'));
-                                    }
-                                }}>ĐẶT HÀNG</Button>
+                                <Button
+                                    className="w-full bg-red-600 hover:bg-red-700 text-white py-3 text-lg font-bold tracking-wide"
+                                    onClick={async () => {
+                                        if (cart.length === 0) {
+                                            toast('Giỏ hàng trống');
+                                            return;
+                                        }
+                                        const payload = {
+                                            tableId: null,
+                                            deliveryTime,
+                                            items: cart.map(i => ({
+                                                productId: i.id,
+                                                quantity: i.quantity,
+                                                price: i.price,
+                                                notes: i.notes
+                                            }))
+                                        };
+
+                                        console.debug('Creating order with payload:', payload);
+                                        setIsSubmitting(true);
+                                        try {
+                                            const res = await createOrder(payload);
+                                            console.debug('Order created:', res);
+                                            toast.success('Đặt hàng thành công');
+                                            setCart([]);
+                                        } catch (e) {
+                                            console.error('Order error:', e);
+                                            const serverMsg = e?.response?.data?.message || e?.response?.data || e?.message || 'Lỗi kết nối tới server';
+                                            toast.error('Lỗi đặt hàng: ' + serverMsg);
+                                        } finally {
+                                            setIsSubmitting(false);
+                                        }
+                                    }}
+                                    disabled={isSubmitting}
+                                >
+                                    {isSubmitting ? 'Đang xử lý...' : 'ĐẶT HÀNG'}
+                                </Button>
                             </div>
 
                         </div>

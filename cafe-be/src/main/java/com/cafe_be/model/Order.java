@@ -20,7 +20,7 @@ public class Order {
     @ManyToOne
     private User customer; // nullable if walk-in without account
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = true)
     private CafeTable table;
 
     @OneToMany(cascade = CascadeType.ALL)

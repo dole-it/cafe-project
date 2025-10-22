@@ -36,14 +36,20 @@ public class TokenService {
     public String createToken(com.cafe_be.model.User user) {
         Date now = new Date();
         Date exp = new Date(now.getTime() + expirationMs);
-    return JWT.create()
-        .withSubject(user.getUsername())
-        .withClaim("email", user.getEmail())
-        // user.getRole() is a single enum now; create a list with the name if present
-        .withClaim("roles", user.getRole() == null ? java.util.List.of() : java.util.List.of(user.getRole().name()))
-        .withIssuedAt(now)
-        .withExpiresAt(exp)
-        .sign(algorithm);
+        com.auth0.jwt.JWTCreator.Builder builder = JWT.create()
+                .withSubject(user.getUsername())
+                .withIssuedAt(now)
+                .withExpiresAt(exp);
+
+        if (user.getEmail() != null) builder.withClaim("email", user.getEmail());
+        if (user.getFullName() != null) builder.withClaim("fullName", user.getFullName());
+        if (user.getId() != null) builder.withClaim("id", user.getId());
+
+        // roles as list
+        java.util.List<String> roles = user.getRole() == null ? java.util.List.of() : java.util.List.of(user.getRole().name());
+        builder.withClaim("roles", roles);
+
+        return builder.sign(algorithm);
     }
 
     public DecodedJWT verify(String token) {

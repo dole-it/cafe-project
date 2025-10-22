@@ -17,14 +17,14 @@ public class DataLoader {
     CommandLineRunner init(UserRepository userRepo, ProductRepository productRepo, CafeTableRepository tableRepo, PasswordEncoder encoder) {
         return args -> {
             // Create root user if not exists
-            if (userRepo.findByUsername("root").isEmpty()) {
-                User root = new User();
-                root.setUsername("root");
-                root.setPassword(encoder.encode("rootpass"));
-                root.setRole(Role.ROOT);
-                root.setFullName("Root User");
-                root.setEmail("root@example.com");
-                userRepo.save(root);
+            if (userRepo.findByUsername("admin").isEmpty()) {
+                User admin = new User();
+                admin.setUsername("admin");
+                admin.setPassword(encoder.encode("adminpass"));
+                admin.setRole(Role.ADMIN);
+                admin.setFullName("admin User");
+                admin.setEmail("admin@example.com");
+                userRepo.save(admin);
             }
 
             // Add sample products if none exist

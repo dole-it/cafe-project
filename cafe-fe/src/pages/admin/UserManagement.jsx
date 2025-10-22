@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
+import { getUsers, createUser, deleteUser } from '../../api/users.api';
+import { toast } from 'sonner';
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -15,17 +17,11 @@ export default function UserManagement() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/users', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setUsers(data);
-      }
+      const data = await getUsers();
+      setUsers(data);
     } catch (error) {
       console.error('Error fetching users:', error);
+      toast.error('Không thể tải danh sách người dùng');
     }
   };
 
@@ -36,39 +32,25 @@ export default function UserManagement() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:8080/api/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(formData)
-      });
-
-      if (response.ok) {
-        setIsAddModalOpen(false);
-        fetchUsers();
-      }
+      await createUser(formData);
+      toast.success('Thêm người dùng thành công');
+      setIsAddModalOpen(false);
+      fetchUsers();
     } catch (error) {
       console.error('Error adding user:', error);
+      toast.error('Lỗi thêm người dùng');
     }
   };
 
   const handleDelete = async (id) => {
     if (window.confirm('Bạn có chắc muốn xóa người dùng này?')) {
       try {
-        const response = await fetch(`http://localhost:8080/api/users/${id}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-
-        if (response.ok) {
-          fetchUsers();
-        }
+        await deleteUser(id);
+        toast.success('Xóa người dùng thành công');
+        fetchUsers();
       } catch (error) {
         console.error('Error deleting user:', error);
+        toast.error('Lỗi xóa người dùng');
       }
     }
   };

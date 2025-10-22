@@ -4,6 +4,7 @@ import com.cafe_be.model.CafeTable;
 import com.cafe_be.repository.CafeTableRepository;
 import com.cafe_be.service.CafeTableService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -37,5 +38,13 @@ public class CafeTableServiceImpl implements CafeTableService {
     @Override
     public CafeTable findById(Long id) {
         return repo.findById(id).orElseThrow();
+    }
+
+    @Override
+    @Transactional
+    public CafeTable updateStatus(Long id, com.cafe_be.model.enums.TableStatus status) {
+        CafeTable table = repo.findById(id).orElseThrow(() -> new RuntimeException("Table not found"));
+        table.setStatus(status);
+        return repo.save(table);
     }
 }
