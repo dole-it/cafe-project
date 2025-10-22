@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
+import { getAllProducts, createProduct, deleteProduct } from '../../api/product.api';
+import { toast } from 'sonner';
 
 export default function MenuManagement() {
   const [products, setProducts] = useState([]);
@@ -15,37 +17,23 @@ export default function MenuManagement() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:8080/api/products', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(formData)
-      });
-
-      if (response.ok) {
-        setIsAddModalOpen(false);
-        fetchProducts(); // Refresh the list
-      }
+      await createProduct(formData);
+      toast.success('Thêm món thành công');
+      setIsAddModalOpen(false);
+      fetchProducts();
     } catch (error) {
       console.error('Error adding product:', error);
+      toast.error('Lỗi thêm món: ' + (error.response?.data || 'Đã có lỗi xảy ra'));
     }
   };
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/products', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setProducts(data);
-      }
+      const data = await getAllProducts();
+      setProducts(data);
     } catch (error) {
       console.error('Error fetching products:', error);
+      toast.error('Lỗi tải danh sách sản phẩm');
     }
   };
 
@@ -56,18 +44,12 @@ export default function MenuManagement() {
   const handleDelete = async (id) => {
     if (window.confirm('Bạn có chắc muốn xóa sản phẩm này?')) {
       try {
-        const response = await fetch(`http://localhost:8080/api/products/${id}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-
-        if (response.ok) {
-          fetchProducts(); // Refresh the list
-        }
+        await deleteProduct(id);
+        toast.success('Xóa sản phẩm thành công');
+        fetchProducts();
       } catch (error) {
         console.error('Error deleting product:', error);
+        toast.error('Lỗi xóa sản phẩm');
       }
     }
   };

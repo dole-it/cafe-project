@@ -7,7 +7,6 @@ import com.cafe_be.service.AuthService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -23,7 +22,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public User register(User u) {
         u.setPassword(passwordEncoder.encode(u.getPassword()));
-        u.setRoles(Set.of(Role.USER));
+        u.setRole(Role.USER);
         return userRepository.save(u);
     }
 
