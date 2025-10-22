@@ -34,7 +34,7 @@ public class AuthController {
         if (!passwordEncoder.matches(req.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid credentials");
         }
-        String token = tokenService.createToken(user.getUsername());
-        return new LoginResponse(token, user.getUsername());
+        String token = tokenService.createToken(user);
+        return new com.cafe_be.dto.LoginResponse(token, user.getUsername(), user.getEmail());
     }
 }

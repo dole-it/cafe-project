@@ -22,6 +22,7 @@ public class DataLoader {
                 root.setPassword(encoder.encode("rootpass"));
                 root.setRoles(java.util.Set.of(Role.ROOT, Role.ADMIN));
                 root.setFullName("Root User");
+                root.setEmail("root@example.com");
                 userRepo.save(root);
             }
         };

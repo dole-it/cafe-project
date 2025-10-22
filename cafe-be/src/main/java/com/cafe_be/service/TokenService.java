@@ -33,11 +33,14 @@ public class TokenService {
         this.expirationMs = expirationMs;
     }
 
-    public String createToken(String username) {
+    public String createToken(com.cafe_be.model.User user) {
         Date now = new Date();
         Date exp = new Date(now.getTime() + expirationMs);
+        com.auth0.jwt.interfaces.Claim[] dummy = new com.auth0.jwt.interfaces.Claim[0];
         return JWT.create()
-                .withSubject(username)
+                .withSubject(user.getUsername())
+                .withClaim("email", user.getEmail())
+                .withClaim("roles", user.getRoles() == null ? java.util.List.of() : user.getRoles().stream().map(Enum::name).toList())
                 .withIssuedAt(now)
                 .withExpiresAt(exp)
                 .sign(algorithm);
