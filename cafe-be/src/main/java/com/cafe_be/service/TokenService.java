@@ -1,0 +1,54 @@
+package com.cafe_be.service;
+
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.auth0.jwt.interfaces.JWTVerifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+
+@Service
+public class TokenService {
+
+    private final Algorithm algorithm;
+    private final JWTVerifier verifier;
+    private final long expirationMs;
+
+    public TokenService(Environment env,
+                        @Value("${app.jwt.expiration-ms:3600000}") long expirationMs) {
+        String secret = env.getProperty("app.jwt.secret");
+        if (secret == null || secret.isBlank()) {
+            // fallback to environment variable if provided
+            secret = env.getProperty("APP_JWT_SECRET");
+        }
+        if (secret == null || secret.isBlank()) {
+            throw new IllegalStateException("JWT secret not configured. Set 'app.jwt.secret' in application.properties or environment variable APP_JWT_SECRET");
+        }
+
+        this.algorithm = Algorithm.HMAC256(secret);
+        this.verifier = JWT.require(algorithm).build();
+        this.expirationMs = expirationMs;
+    }
+
+    public String createToken(String username) {
+        Date now = new Date();
+        Date exp = new Date(now.getTime() + expirationMs);
+        return JWT.create()
+                .withSubject(username)
+                .withIssuedAt(now)
+                .withExpiresAt(exp)
+                .sign(algorithm);
+    }
+
+    public DecodedJWT verify(String token) {
+        return verifier.verify(token);
+    }
+
+    public String getUsernameFromToken(String token) {
+        DecodedJWT jwt = verify(token);
+        return jwt.getSubject();
+    }
+}
